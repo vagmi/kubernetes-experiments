@@ -30,10 +30,16 @@ resource "null_resource" "controller-certs" {
         controller_ip = "${digitalocean_droplet.controller.ipv4_address}"
     }
     provisioner "local-exec" {
-        command = "../scripts/gen-certs.sh"
+        command = "../scripts/gen-certs.sh && ../scripts/gen-api-cert.sh"
         working_dir = "../scripts"
+        environment {
+            instance = "controller"
+            publicip = "${digitalocean_droplet.controller.ipv4_address}"
+            privateip = "${digitalocean_droplet.controller.ipv4_address_private}"
+        }
     }
 }
+
 resource "null_resource" "kubelet-certs" {
     count = 2
     triggers {
